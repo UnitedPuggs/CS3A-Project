@@ -1304,22 +1304,23 @@ M=-1
 	
 	
 
-
+//CODED BY : Eddie Poulson
+//Pretty simple algorithms used to draw the output onto the screen
 
 (EP_OUTPUT)
-	@21
-	D=A
+	@21 //Goes to column 21
+	D=A //Saves that to D 
 	@ge_currentColumn
-	M=D
+	M=D //ge_currentColumn = A
 	@ep_output_col21
-	D=A
+	D=A //Saves ep_output_col21 to D
 	@ge_output_return
-	M=D
-	@ep_determineZero_col21
+	M=D //ge_output_return = A
+	@ep_determineZero_col21 //Jumps to function to determine what number to draw in column 21
 	0;JMP
 (ep_output_col21)
 
-	@22
+	@22 //Goes to column 22 and then goes through the same process as above
 	D=A
 	@ge_currentColumn
 	M=D
@@ -1327,11 +1328,11 @@ M=-1
 	D=A
 	@ge_output_return
 	M=D
-	@ep_determineZero_col22
+	@ep_determineZero_col22 //Jumps to function to determine what number to draw in column 22
 	0;JMP
 (ep_output_col22)
 
-	@23
+	@23 //Goes to column 23 and then goes through the same process as above
 	D=A
 	@ge_currentColumn
 	M=D
@@ -1339,11 +1340,11 @@ M=-1
 	D=A
 	@ge_output_return
 	M=D
-	@ep_determineZero_col23
+	@ep_determineZero_col23 //Jumps to function to determine what number to draw in column 23
 	0;JMP
 (ep_output_col23)
 
-	@24
+	@24  //Goes to column 24 and then goes through the same process as above
 	D=A
 	@ge_currentColumn
 	M=D
@@ -1351,11 +1352,11 @@ M=-1
 	D=A
 	@ge_output_return
 	M=D
-	@ep_determineZero_col24
+	@ep_determineZero_col24 //Jumps to function to determine what number to draw in column 24
 	0;JMP
 (ep_output_col24)
 
-	@25
+	@25  //Goes to column 25 and then goes through the same process as above
 	D=A
 	@ge_currentColumn
 	M=D
@@ -1363,142 +1364,144 @@ M=-1
 	D=A
 	@ge_output_return
 	M=D
-	@ep_determineZero_col25
+	@ep_determineZero_col25 //Jumps to function to determine what number to draw in column 25
 	0;JMP
 (ep_output_col25)
-	@isNegative
-	D=M
-	@ep_output_col20_+
-	D;JEQ
+
+	@isNegative //Flag gived by Dante's code about the sign for the number
+	D=M //D = isNegative
+	@ep_output_col20_+ 
+	D;JEQ //If D = 0, then the sign is positive
 	@ep_output_col20_-
-	D;JGT
+	D;JGT //If D = 1, then the sign is negative 
 (ep_output_col20)
 
-(ep_END)
+(ep_END) //Once the above functions are called, goes to this function and goes back to Luke's input loop
 @LT_INPUT_LOOP
 0;JMP	
 
 (ep_output_col20_-)
-	@20
-	D=A
+	@20 //Goes to column 20
+	D=A //D = 20
 	@ge_currentColumn
-	M=D
+	M=D //ge_currentColumn = D
 	@ep_END
-	D=A
+	D=A //goes to ep_END after sign is drawn
 	@ge_output_return
 	M=D
-	@ge_output_-
+	@ge_output_- //draws the actual sign
 	0;JMP
 (ep_output_col20_+)
-	@20
-	D=A
+	@20 //Goes to column 20
+	D=A //D = 20
 	@ge_currentColumn
-	M=D
+	M=D //ge_currentColumn = D
 	@ep_END
-	D=A
+	D=A //goes to ep_END after sign is drawn
 	@ge_output_return
 	M=D
-	@ge_output_+
+	@ge_output_+ //draws the actual sign
 	0;JMP
 
 (ep_determineZero_col21)
-	@2004
-	D=M //D = RAM[29]
+	@2004 
+	D=M //D = RAM[2004]
 	@ge_output_0
-	D;JEQ
+	D;JEQ //If D = 0 then just output 0 
 	@ge_output_s
-	D;JLT
+	D;JLT //If D = -1 then just output a space
 	
 	@ep_determineOne_col21
-	D;JGT
+	D;JGT //Else if D > 0 then GOTO determineOne
 (ep_determineOne_col21)
-	@1
-	D=A
+	@1 
+	D=A //Set D = 1
 	@2004
-	D=D-M
+	D=D-M //D = 1 - RAM[2004]
 	@ge_output_1
-	D;JEQ
+	D;JEQ //If D = 0, so M = 1, then output 1
 	
 	@ep_determineTwo_col21
-	D;JGT
+	D;JGT //Else if D > 0 GOTO determineTwo
 (ep_determineTwo_col21)
 	@2
-	D=A
+	D=A //Set D = 2
 	@2004
-	D=D-M
+	D=D-M //D = 2 - RAM[2004]
 	@ge_output_2
-	D;JEQ
+	D;JEQ //If D = 0, so M = 2, then output 2
 	
 	@ep_determineThree_col21
-	D;JGT
+	D;JGT //Else if D > 0 GOTO determineThree
 (ep_determineThree_col21)
 	@3
-	D=A
+	D=A //Set D = 3
 	@2004
-	D=D-M
+	D=D-M //D = 3 - RAM[2004]
 	@ge_output_3
-	D;JEQ
+	D;JEQ //If D = 0, so M = 3, then output 3
 	
 	@ep_determineFour_col21
-	D;JGT
+	D;JGT //Else if D > 0 GOTO determineFour
 (ep_determineFour_col21)
 	@4
-	D=A
+	D=A //Set D = 4
 	@2004
-	D=D-M
+	D=D-M //D = 4 - RAM[2004]
 	@ge_output_4
-	D;JEQ
+	D;JEQ //If D = 0, so M = 4, then output 4
 	
 	@ep_determineFive_col21
-	D;JGT
+	D;JGT //Else if D > 0 GOTO determineFive
 (ep_determineFive_col21)
 	@5
-	D=A
+	D=A //Set D = 5
 	@2004
-	D=D-M
+	D=D-M //D = 5 - RAM[2004]
 	@ge_output_5
-	D;JEQ
+	D;JEQ //If D = 0, so M = 5, then output 5
 	
 	@ep_determineSix_col21
-	D;JGT
+	D;JGT //Else if D > 0 GOTO determineSix
 (ep_determineSix_col21)
 	@6
-	D=A
+	D=A //Set D = 6
 	@2004
-	D=D-M
+	D=D-M //D = 6 - RAM[2004]
 	@ge_output_6
-	D;JEQ
+	D;JEQ //If D = 0, so M = 6, then output 6
 	
 	@ep_determineSeven_col21
-	D;JGT
+	D;JGT //Else if D > 0 GOTO determineSeven
 (ep_determineSeven_col21)
 	@7
-	D=A
+	D=A //Set D = 7
 	@2004
-	D=D-M
+	D=D-M //D = 7 - RAM[2004]
 	@ge_output_7
-	D;JEQ
+	D;JEQ //If D = 0, so M = 7, then output 7
 	
 	@ep_determineEight_col21
-	D;JGT
+	D;JGT //Else if D > 0 GOTO determineEight
 (ep_determineEight_col21)
 	@8
-	D=A
+	D=A //Set D = 8
 	@2004
-	D=D-M
+	D=D-M //D = 8 - RAM[2004]
 	@ge_output_8
-	D;JEQ
+	D;JEQ //If D = 0, so M = 8, then output 8
 	
 	@ep_determineNine_col21
-	D;JGT
+	D;JGT //Else if D > 0 GOTO determineNine
 (ep_determineNine_col21)
 	@9
-	D=A
+	D=A //Set D = 9
 	@2004
-	D=D-M
+	D=D-M //D = 9 - RAM[2004]
 	@ge_output_9
 	D;JEQ //ends here, we can't have numbers greater than 9
 
+//THESE ALL FOLLOW THE SAME ALGORITHM AS ABOVE, JUST FOR COLUMNS 22 - 25 AND RAM[2003] - RAM[2000]
 (ep_determineZero_col22)
 	@2003
 	D=M //D = RAM[29]
