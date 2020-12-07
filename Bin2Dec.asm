@@ -185,8 +185,14 @@ M=D
 
 
 
-@DV_proccessing // jumps to process the input if the buffer is full
-0;JMP
+
+@LT_cursor 
+D=M
+@16
+D=D-A
+
+@DV_process  // jumps to process the input if the buffer is full
+D;JEQ
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -326,6 +332,9 @@ D;JEQ
 0;JMP
 ///////////////////////////////////////////////////////////////////////
 
+
+
+
 //Student: Dante Vazquez
 //Binary to decimal conversion segment
 //Gets a 16-bit signed word and converts it to decimal 
@@ -336,18 +345,8 @@ D;JEQ
 
 
 
-(DV_proccessing)
-//Student: Dante Vazquez
-//Binary to decimal conversion segment
-//Gets a 16-bit signed word and converts it to decimal 
-//R0 through R15 are stored in an array that starts at address 1000 and extends.. 
-//to address 1015. Therefore R0-R15 are never modified
-//Converted number is stored in @dec  (register 16)
-//Whether the converted number is positve or negative is stored in @isNegative (register 17)
 
-
-
-
+(DV_process)
 @dec
 M=0 //decimal=0
 
@@ -946,7 +945,8 @@ M=D //dv_dividend = dv_quotient
 @DEC_TO_ARR_LOOP
 0;JMP //Go back to beggining of loop
 
-@LT_END
+(END_OF_DEC)
+@END_OF_DEC
 0;JMP
 
 //Decimal conversion stored in register 50-55
@@ -1270,6 +1270,10 @@ M=-1
 
 	
 	
+
+
+
+
 
 
 
