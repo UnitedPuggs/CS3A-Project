@@ -6,6 +6,9 @@
 //Converted number is stored in @dec  (register 16)
 //Whether the converted number is positve or negative is stored in @isNegative (register 17)
 
+
+
+
 @dec
 M=0 //decimal=0
 
