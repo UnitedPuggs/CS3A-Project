@@ -337,9 +337,19 @@ D;JEQ
 
 
 (DV_proccessing)
+//Student: Dante Vazquez
+//Binary to decimal conversion segment
+//Gets a 16-bit signed word and converts it to decimal 
+//R0 through R15 are stored in an array that starts at address 1000 and extends.. 
+//to address 1015. Therefore R0-R15 are never modified
+//Converted number is stored in @dec  (register 16)
+//Whether the converted number is positve or negative is stored in @isNegative (register 17)
+
+
+
+
 @dec
 M=0 //decimal=0
-
 
 
 @isNegative
@@ -384,7 +394,7 @@ M=D //bit[4] = R4
 @R5
 D=M
 @1005
-M=D //bit[5] = R5
+M=D //bit[5] = R5    //line 50
 
 @R6
 D=M
@@ -442,6 +452,81 @@ D=M
 @DECIMAL_CONVERSION
 D;JEQ //if bit[1] equals 0, no two's compliment is needed, go to binary to decimal conversion
 
+//Check for 1000 0000 0000 0000
+
+//specialCaseCompare = 16
+@16
+D=A
+@specialCaseCompare
+M=D 
+
+//i=1
+@iSpecialCase
+M=1                                    
+
+@1000
+D=A
+@bit
+M=D
+
+//if (i == specialCaseCompare) go to end of loop
+(SPECIAL_CASE_LOOP)
+@iSpecialCase 
+D=M 
+@specialCaseCompare
+D=D-M 
+@NO_ONES_FOUND
+D;JEQ //If all bits were checked and no ones were found, go to NO_ONES_FOUND
+
+@bit 
+D=M
+@iSpecialCase 
+A=D+M
+D=M // D= bit[i]
+@ONE_FOUND
+D;JGT // bit[i]=1, continue to start of 2s compliment processing
+
+@iSpecialCase
+M=M+1 //i++
+
+@SPECIAL_CASE_LOOP
+0;JMP 
+
+(NO_ONES_FOUND) //Special case 1000 0000 0000 0000 was found
+
+@3
+D=A 
+@2004
+M=D //DecArr[4] = 3
+
+@2
+D=A 
+@2003
+M=D //DecArr[3] = 2
+
+@7
+D=A 
+@2002
+M=D //DecArr[2] = 7
+
+@6
+D=A 
+@2001
+M=D //DecArr[1] = 6
+
+@8
+D=A 
+@2000
+M=D //DecArr[3] = 8
+
+@isNegative
+M= 1  //isNegative=true
+
+@END_OF_DEC
+0;JMP 
+
+(ONE_FOUND) //Word is not 1000 0000 0000 0000, no special case 
+
 @isNegative 
 M=1 //isNegative= true (Indicates that decimal output will be negative)
 
@@ -474,7 +559,7 @@ M=1
 //if (i ==numToCompare) goto ADD_ONE
 @i 
 D=M
-@numToCompare
+@numToCompare                           //line 150
 D=D-M
 @ADD_ONE
 D;JEQ 
@@ -503,7 +588,7 @@ A=D+M
 M=1 //bit[i]=1
 
 (ELSE_SKIP_ONE)
-@i 
+@i                              // line 173
 M=M+1 // i++
 
 @INVERSION_LOOP
@@ -779,18 +864,413 @@ M=M+1
 
 (SKIP_POWER_0)
 
-
-@LT_END
-0;JMP
-
 //CONVERSION IS DONE
 //Decimal conversion is saved in @dec (register 16)
 //Whether the number is negative is saved in @isNegative. 1=true (-) 0=false (+) (register 17)
 
 
+//Store dec in 5 individual registers.
+
+//decArr = 2000
+@2000
+D=A 
+@decArr
+M=D 
+
+//Register 50-54 are initialized to -1 to indicate if any registers did not store a digit
+@2000
+M= -1
+
+@2001
+M= -1
+
+@2002
+M= -1
+
+@2003
+M= -1
+
+@2004
+M= -1
+
+@iThree
+M=0 //i=0
+
+@dec 
+D=M 
+@dv_dividend
+M=D //dv_dividend=dec 
+
+@dv_remainder
+M=0 //dv_remainder=0
+
+(DEC_TO_ARR_LOOP)
+@dv_dividend
+D=M 
+@END_OF_DEC
+D;JEQ 
+
+@10
+D=A
+@dv_divisor
+M=D //divisor=10
+
+@DIV_FUNCTION 
+0;JMP //Calling Div function (Divide Divedend/10)
+
+(DIV_RETURN) 
+//Returns dv_quotient which is then stored to dv_dividend
+//Also returns dv_remainder which is stored in decArr[i]
+
+//decArr[i]= dv_remainder
+@iThree 
+D=M 
+@decArr
+D=D+M 
+@decimalPtr
+M=D 
+@dv_remainder
+D=M 
+@decimalPtr 
+A=M 
+M=D  //line 340
+
+@iThree
+M=M+1 //i++
+
+@dv_quotient
+D=M 
+@dv_dividend
+M=D //dv_dividend = dv_quotient
+
+@DEC_TO_ARR_LOOP
+0;JMP //Go back to beggining of loop
+
+@LT_END
+0;JMP
+
+//Decimal conversion stored in register 50-55
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//FUNCTION
+//div.asm
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+(DIV_FUNCTION)
+
+//Dante Vazquez
+//CS3A
+//Project 5
+//Div.asm
+
+@dv_dividend //Divedend r0
+@dv_divisor //Divisor    r1
+@dv_quotient //Quotient    r2
+M=0
+@dv_remainder //Remainder   r3
+M=0
+
+@dv_dividend
+D=M
+@dividend
+M=D 
+
+@dv_divisor 
+D=M
+@divisor
+M=D 
+
+@dv_quotient
+D=M
+@quotient
+M=D 
+
+@dv_remainder
+D=M
+@remainder
+M=D 
+
+//Special cases (0/x, x/0, 0/0 where x != 0)
+
+@divisor 
+D=M
+@UNDEFINED
+D;JEQ //If Divisor is 0, goto undefined, else check for 0/x
+
+@dividend
+D=M
+@ZERO_DIV_X
+D;JEQ //If R0= 0, goto ZERO_DIV_X
+
+@DIVIDE
+0;JMP //Both numbers != 0, proceed to divide, no special case 
+
+(UNDEFINED)
+@dividend
+D=M
+@ZERO_DIV_ZERO
+D;JEQ
+
+@X_DIV_ZERO
+0;JMP 
 
 
-//register 29-34.
+(DIVIDE)
+
+@dividend
+D=M
+@NEG
+D;JLT //if dividend is negative go to NEG, else check to see if divisor is + || -
+
+@divisor 
+D=M
+@POS_NEG
+D;JLT //If divisor is negative goto P0S_NEG, else continue
+
+//POS_POS 
+
+//run algortithm 1
+@quotient
+M=0 //quotient=0
+
+@dividend
+D=M 
+@remainder 
+M=D //remainder=dividend
+
+(LOOP_ONE)
+@remainder
+D=M
+@divisor
+D=D-M
+@remainder
+M=D //remainder = remainder - divisor 
+@quotient
+M=M+1 //quotient++
+
+@LOOP_ONE
+D;JGT// If remainder is > 0 go back to LOOP_ONE
+
+@remainder 
+D=M 
+@NEXT_ONE
+D;JGE //if remainder < 0 continue, else go to next
+
+
+@divisor
+D=D+M 
+@remainder
+M=D //remainder = remainder + divisor 
+@quotient
+M=M-1 //quotient--
+
+(NEXT_ONE) //end algortithm 1
+
+@quotient
+D=M 
+@dv_quotient 
+M=D //R2 = quotient
+
+@remainder 
+D=M 
+@dv_remainder
+M=D //R3= remainder 
+
+@END_OF_DIV_FUNC
+0;JMP
+//break
+
+
+(POS_NEG)
+@divisor 
+D=M 
+D=D-1 
+D=!D 
+M=D //negate divisor 
+
+//run algortithm 1
+@quotient
+M=0 //quotient=0
+
+@dividend
+D=M 
+@remainder 
+M=D //remainder=dividend
+
+(LOOP_TWO)
+@remainder
+D=M
+@divisor
+D=D-M
+@remainder
+M=D //remainder = remainder - divisor 
+@quotient
+M=M+1 //quotient++
+
+@LOOP_TWO
+D;JGT// If remainder is > 0 go back to LOOP_TWO
+
+@remainder 
+D=M 
+@NEXT_TWO
+D;JGE //if remainder < 0 continue, else go to next
+
+
+@divisor
+D=D+M 
+@remainder
+M=D //remainder = remainder + divisor 
+@quotient
+M=M-1 //quotient--
+
+(NEXT_TWO) //end algortithm 1
+
+@quotient
+D=M 
+D=D-1 
+D=!D 
+M=D  //negate quotient
+@dv_quotient
+M=D //R2= quotient
+
+@remainder 
+D=M 
+@dv_remainder
+M=D //R3= remainder 
+
+@END_OF_DIV_FUNC 
+0;JMP 
+//break 
+
+(NEG)
+@divisor
+D=M 
+@NEG_NEG
+D;JLT //Go to NEG_NEG if divisor is negative, else continue. 
+
+//NEG_POS
+
+//run algortithm 2
+@quotient 	
+M=0 //quotient=0
+
+@dividend
+D=M
+@remainder
+M=D //remainder=dividend
+
+(LOOP_THREE)
+@remainder
+D=M
+@divisor
+D=D+M
+@remainder
+M=D //remainder = remainder + divisor 
+@quotient
+M=M+1 //quotient++
+
+@LOOP_THREE
+D;JLT
+
+//end algortithm 2
+
+@quotient
+D=M
+D=D-1 
+D=!D 
+M=D //negate quotient
+@dv_quotient 
+M=D //R2 = quotient 
+
+@remainder 
+D=M 
+@dv_remainder
+M=D //R3= remainder 
+
+@END_OF_DIV_FUNC
+0;JMP 
+//break 
+
+(NEG_NEG)
+@divisor
+D=M
+D=D-1 
+D=!D
+M=D //negate divisor 
+
+//run algortithm 2
+@quotient 	
+M=0 //quotient=0
+
+@dividend
+D=M
+@remainder
+M=D //remainder=dividend
+
+(LOOP_FOUR)
+@remainder
+D=M
+@divisor
+D=D+M
+@remainder
+M=D //remainder = remainder + divisor 
+@quotient
+M=M+1 //quotient++
+
+@LOOP_FOUR
+D;JLT
+
+//end algortithm 2
+
+@quotient
+D=M 
+@dv_quotient 
+M=D //R2 = quotient
+
+@remainder 
+D=M 
+@dv_remainder
+M=D //R3 = remainder 
+
+@END_OF_DIV_FUNC
+0;JMP 
+//break 
+
+
+(ZERO_DIV_X) //takes care of 0/x
+@dv_quotient
+M=0
+@dv_remainder
+M=0
+@END_OF_DIV_FUNC
+0;JMP 
+
+(ZERO_DIV_ZERO) //take care of 0/0
+@dv_quotient 
+M=0
+@dv_remainder
+M=-1
+D=M
+D=M-1
+M=D 
+@END_OF_DIV_FUNC
+0;JMP
+
+(X_DIV_ZERO) //takes care of x/0
+@dv_quotient 
+M=0
+@dv_remainder
+M=-1
+@END_OF_DIV_FUNC
+0;JMP 
+
+(END_OF_DIV_FUNC)
+
+@DIV_RETURN
+0;JMP
+
+	
+	
+
 
 
 
