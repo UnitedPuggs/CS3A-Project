@@ -124,7 +124,7 @@ D=D-A      // subtract expected value to check if the key scanned is enter
 @LT_button_release_wait //jump to wait for button to be released
 D;JEQ
 
-@LT_END  //stores what function to call when button is relseased
+@LT_PreEnd  //stores what function to call when button is relseased
 D=A
 @LT_button_released
 M=D
@@ -224,6 +224,37 @@ M=0
 @LT_bufClear      //checks if the cursor is at 0, if not loops again
 D=M
 @LT_INPUT_LOOP
+D;JEQ
+@LT_bufClear  //decrements cursor position
+D=M
+M=M-1
+@LT_clearBuf
+0;JMP
+
+
+///////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////
+(LT_PreEnd)
+@LT_bufClear
+D=M-1
+@ge_currentColumn  //sets current loop column to a space on screen
+M=D
+@LT_CLEAR_CONTINUE
+D=A
+@ge_output_return
+M=D
+@ge_output_s
+0;JMP
+
+(LT_CLEAR_CONTINUE)
+
+@LT_cursor
+M=0
+
+@LT_bufClear      //checks if the cursor is at 0, if not loops again
+D=M
+@LT_END
 D;JEQ
 @LT_bufClear  //decrements cursor position
 D=M
