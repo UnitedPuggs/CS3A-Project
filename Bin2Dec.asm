@@ -366,18 +366,14 @@ D;JEQ
 ///////////////////////////////////////////////////////////////////////
 
 
-
-
-//Student: Dante Vazquez
+//Coded by: Dante Vazquez
 //Binary to decimal conversion segment
 //Gets a 16-bit signed word and converts it to decimal 
 //R0 through R15 are stored in an array that starts at address 1000 and extends.. 
 //to address 1015. Therefore R0-R15 are never modified
-//Converted number is stored in @dec  (register 16)
-//Whether the converted number is positve or negative is stored in @isNegative (register 17)
-
-
-
+//Converted number is stored in @dec
+//@dec is stored in decArr[], which are registers 2000 through 2004
+//Whether the converted number is positve or negative is stored in @isNegative
 
 (DV_process)
 @dec
@@ -485,22 +481,23 @@ D=M
 D;JEQ //if bit[1] equals 0, no two's compliment is needed, go to binary to decimal conversion
 
 //Check for 1000 0000 0000 0000
+//Since bit[0] = 1, the following is going to check if the next 15 bits=0
+//If the next 15 bits are 0, decArr[] will store 32768 and isNegative = true
 
-//specialCaseCompare = 16
 @16
 D=A
 @specialCaseCompare
-M=D 
+M=D //specialCaseCompare = 16
 
-//i=1
 @iSpecialCase
-M=1                                    
+M=1  //i=1                                  
 
 @1000
 D=A
 @bit
 M=D
 
+//The following loop checks to see if the next 15 bits=0
 //if (i == specialCaseCompare) go to end of loop
 (SPECIAL_CASE_LOOP)
 @iSpecialCase 
@@ -516,7 +513,7 @@ D=M
 A=D+M
 D=M // D= bit[i]
 @ONE_FOUND
-D;JGT // bit[i]=1, continue to start of 2s compliment processing
+D;JGT // bit[i]=1, a one was found, go to the start of 2s compliment processing
 
 @iSpecialCase
 M=M+1 //i++
@@ -899,7 +896,7 @@ M=M+1
 //CONVERSION IS DONE
 //Decimal conversion is saved in @dec (register 16)
 //Whether the number is negative is saved in @isNegative. 1=true (-) 0=false (+) (register 17)
-
+//@dec will then be stored in 5 individual registers, decArr[]
 
 //Store dec in 5 individual registers.
 
@@ -909,7 +906,7 @@ D=A
 @decArr
 M=D 
 
-//Register 50-54 are initialized to -1 to indicate if any registers did not store a digit
+//Register 2000-2004 are initialized to -1 to indicate if any registers did not store a digit
 @2000
 M= -1
 
@@ -936,11 +933,16 @@ M=D //dv_dividend=dec
 @dv_remainder
 M=0 //dv_remainder=0
 
+//The following loop divides the decimal number by 10 and stores the remainder in decArr[]
+//Then it gets the quotient of the division and divides the quotient by 10 and stores the remainder
+//in the next address of decArr[]
+//This continues to happen until the dividend is 0.
+
 (DEC_TO_ARR_LOOP)
 @dv_dividend
 D=M 
 @END_OF_DEC
-D;JEQ 
+D;JEQ //If dv_dividend=0, get out of the loop
 
 @10
 D=A
@@ -965,7 +967,7 @@ M=D
 D=M 
 @decimalPtr 
 A=M 
-M=D  //line 340
+M=D  
 
 @iThree
 M=M+1 //i++
@@ -978,15 +980,22 @@ M=D //dv_dividend = dv_quotient
 @DEC_TO_ARR_LOOP
 0;JMP //Go back to beggining of loop
 
+//loop ends
+
 (END_OF_DEC)
 @EP_OUTPUT
 0;JMP
 
-//Decimal conversion stored in register 50-55
+//Decimal conversion stored in register 2000-2004 which is decArr[]
+//The decimal conversion is stored from the highest address of decArr[] to the lowest.
+//Ex. if @dec = 24500. Register 2000= 0, 2001=0, 2002=5, 2003=4, 2004=2
+//The numbers sign will be stored in isNegative. true= negative number false= positive number
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //FUNCTION
 //div.asm
+//The following function takes in dv_dividend and dv_divisor. It proceeds to divide the two
+//and returns dv_quotient and dv_remainder
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 (DIV_FUNCTION)
 
@@ -995,32 +1004,32 @@ M=D //dv_dividend = dv_quotient
 //Project 5
 //Div.asm
 
-@dv_dividend //Divedend r0
-@dv_divisor //Divisor    r1
-@dv_quotient //Quotient    r2
+@dv_dividend //Divedend 
+@dv_divisor //Divisor    
+@dv_quotient //Quotient    
 M=0
-@dv_remainder //Remainder   r3
+@dv_remainder //Remainder   
 M=0
 
 @dv_dividend
 D=M
 @dividend
-M=D 
+M=D //dividend=dv_dividend
 
 @dv_divisor 
 D=M
 @divisor
-M=D 
+M=D //divisor=dv_divisor
 
 @dv_quotient
 D=M
 @quotient
-M=D 
+M=D //quotient=dv_quotient
 
 @dv_remainder
 D=M
 @remainder
-M=D 
+M=D //remainder=dv_remainder
 
 //Special cases (0/x, x/0, 0/0 where x != 0)
 
@@ -1101,12 +1110,12 @@ M=M-1 //quotient--
 @quotient
 D=M 
 @dv_quotient 
-M=D //R2 = quotient
+M=D //dv_quotient = quotient
 
 @remainder 
 D=M 
 @dv_remainder
-M=D //R3= remainder 
+M=D //dv_remainder= remainder 
 
 @END_OF_DIV_FUNC
 0;JMP
@@ -1163,12 +1172,12 @@ D=D-1
 D=!D 
 M=D  //negate quotient
 @dv_quotient
-M=D //R2= quotient
+M=D //dv_quotient= quotient
 
 @remainder 
 D=M 
 @dv_remainder
-M=D //R3= remainder 
+M=D //dv_remainder= remainder 
 
 @END_OF_DIV_FUNC 
 0;JMP 
@@ -1212,12 +1221,12 @@ D=D-1
 D=!D 
 M=D //negate quotient
 @dv_quotient 
-M=D //R2 = quotient 
+M=D //dv_quotient = quotient 
 
 @remainder 
 D=M 
 @dv_remainder
-M=D //R3= remainder 
+M=D //dv_remainder= remainder 
 
 @END_OF_DIV_FUNC
 0;JMP 
@@ -1257,12 +1266,12 @@ D;JLT
 @quotient
 D=M 
 @dv_quotient 
-M=D //R2 = quotient
+M=D //dv_quotient = quotient
 
 @remainder 
 D=M 
 @dv_remainder
-M=D //R3 = remainder 
+M=D //dv_remainder = remainder 
 
 @END_OF_DIV_FUNC
 0;JMP 
