@@ -1315,7 +1315,11 @@ M=-1
 	
 
 //CODED BY : Eddie Poulson
-//Pretty simple algorithms used to draw the output onto the screen
+//Outputs either a number, sign, or space based off of the conversion from
+//memory. The outputs are then placed in columns 20 through 25. The output to be drawn are
+//determined by going through various branches and checking to see if some number 1-9
+//minus the number in memory is equal to zero. If it is, then the function to draw number is called
+//and the program continues onto the next column.
 
 (EP_OUTPUT)
 	@21 //Goes to column 21
@@ -1413,6 +1417,19 @@ M=-1
 	@ge_output_+ //draws the actual sign
 	0;JMP
 
+//C++ sorta pseudocode
+//for(int i = 0; i <= num; ++i) {
+//	if(num == 0) {
+//		drawZero();
+//	}
+//	else if (num < 0) {
+//		drawSpace();
+//	}
+//	else if(i - num == 0) {
+//		drawNumber();
+//		break;
+//	}
+//}
 (ep_determineZero_col21)
 	@2004 
 	D=M //D = RAM[2004]
