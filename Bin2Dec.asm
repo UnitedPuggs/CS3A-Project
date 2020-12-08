@@ -14,13 +14,11 @@
 
 
 @LT_cursor //stores location of cursor
+M=0         //intitalize it to 0
 
 
-M=0
-
-
-@0
-M=0
+@0      // intializing the first 16 registers to 0
+M=0     // the inputed binary will be stored here
 @1
 M=0
 @2
@@ -54,7 +52,7 @@ M=0
 
 
 ///////////////////////////////////////////////////////////////////////
-(LT_INPUT_LOOP)
+(LT_INPUT_LOOP)  // main input loop that handles inputs and captures which key has been pressed
 
 @LT_getkey_continue  //calls function LT_getkey
 D=A
@@ -91,8 +89,8 @@ D;JEQ
 D=A
 @LT_button_released
 M=D
-@26
-D=A
+@26         // determines which column the clear starts at for the clearing loop
+D=A         
 @LT_bufClear
 M=D
 @LT_key //check if c is pressed
@@ -141,18 +139,20 @@ D;JEQ
 ///////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////
-(LT_getkey) // retrieves the KBD data and places it in the variable LT_getkey_return
+(LT_getkey) // retrieves the KBD data and places it in the variable LT_key
 @24576
 D=M
 @LT_key
 M=D
-@LT_getkey_return
+@LT_getkey_return   //returns to the address stored here
 A=M
 0;JMP
 ///////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////
-(LT_PreProcess)
+(LT_PreProcess) //sets up for the data in registers 0-16 to be processed and prints an arrow
+
+
 @LT_cursor  //checks if buffer is full if it is jumps back to start of loop
 D=M
 @16
@@ -166,37 +166,36 @@ D;JNE
 
 @18
 D=A
-@ge_currentColumn //sets current colunm to the cursor
+@ge_currentColumn //sets current colunm to 18 for the dash in the arrow
 M=D
-@LT_PR1 // sets output return to the main input loop
+@LT_PR1 // sets output return to continue after this code segment
 D=A
 @ge_output_return
 M=D
-@ge_output_- // calls the output 0 function
+@ge_output_- // calls the output - function
 0;JMP
 (LT_PR1)
 
 
 @19
 D=A
-@ge_currentColumn //sets current colunm to the cursor
+@ge_currentColumn //sets current colunm to 19 for the greater than sign in the arrow
 M=D
-@LT_PR2 // sets output return to the main input loop
+@LT_PR2 // sets output return to continue after this code segment
 D=A
 @ge_output_return
 M=D
-@ge_output_g  // calls the output 0 function
+@ge_output_g  // calls the output g function
 0;JMP
 (LT_PR2)
 
 
 
 
-@LT_cursor 
+@LT_cursor  //checks if the buffer is full
 D=M
 @16
 D=D-A
-
 @DV_process  // jumps to process the input if the buffer is full
 D;JEQ
 
@@ -204,8 +203,9 @@ D;JEQ
 ///////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////
-(LT_clearBuf)
-@LT_bufClear
+(LT_clearBuf)  //clears all of the contents in the first row
+
+@LT_bufClear    //gets the starting column for clearing the row
 D=M-1
 @ge_currentColumn  //sets current loop column to a space on screen
 M=D
@@ -213,30 +213,31 @@ M=D
 D=A
 @ge_output_return
 M=D
-@ge_output_s
+@ge_output_s // sets the current column to a space and returns right below
 0;JMP
 
 (LT_CLEAR_CONTINUE)
 
-@LT_cursor
+@LT_cursor  // sets the cursor location to the first position
 M=0
 
-@LT_bufClear      //checks if the cursor is at 0, if not loops again
+@LT_bufClear      //checks if the bufClear is at 0, if not loops again and erases the next column
 D=M
 @LT_INPUT_LOOP
 D;JEQ
-@LT_bufClear  //decrements cursor position
+@LT_bufClear  //decrements bufClear position
 D=M
 M=M-1
-@LT_clearBuf
+@LT_clearBuf //loops until full cleared
 0;JMP
 
 
 ///////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////
-(LT_PreEnd)
-@LT_bufClear
+(LT_PreEnd) // called when user presses q to quit the program
+
+@LT_bufClear // clears the entire output row
 D=M-1
 @ge_currentColumn  //sets current loop column to a space on screen
 M=D
@@ -252,9 +253,9 @@ M=D
 @LT_cursor
 M=0
 
-@LT_bufClear      //checks if the cursor is at 0, if not loops again
+@LT_bufClear   //checks if the cursor is at 0, if not loops again
 D=M
-@LT_END
+@LT_END         //jumps to the end infinite loop
 D;JEQ
 @LT_bufClear  //decrements cursor position
 D=M
@@ -266,9 +267,9 @@ M=M-1
 ///////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////
-(LT_delBuf)
+(LT_delBuf) // deletes the current character at the cursor
 
-@LT_cursor
+@LT_cursor  // looks at the spot before the cursor to delete
 D=M-1
 @ge_currentColumn  //sets current column to a space on screen
 M=D
@@ -357,11 +358,11 @@ M=D
 
 @LT_key
 D=M
-@LT_button_released
+@LT_button_released   // calls the function stored here once the button is released
 A=M
 D;JEQ
 
-@LT_button_release_wait
+@LT_button_release_wait  // if button is still held down continue to loop
 0;JMP
 ///////////////////////////////////////////////////////////////////////
 
