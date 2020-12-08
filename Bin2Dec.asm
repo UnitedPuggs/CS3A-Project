@@ -241,14 +241,14 @@ M=M-1
 D=M-1
 @ge_currentColumn  //sets current loop column to a space on screen
 M=D
-@LT_CLEAR_CONTINUE
+@LT_CLEAR_CONTINUE_END
 D=A
 @ge_output_return
 M=D
 @ge_output_s
 0;JMP
 
-(LT_CLEAR_CONTINUE)
+(LT_CLEAR_CONTINUE_END)
 
 @LT_cursor
 M=0
