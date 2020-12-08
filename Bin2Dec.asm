@@ -2,7 +2,20 @@
 // that are part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
+
+//Coded by:
+//Luke Thayer
+//Dante Vazquez
+//Eddie Poulson
 //
+//Class: CS3A
+//--------------------------------------------
+//binToDec.asm
+//--------------------------------------------
+//This program does the following:
+//*Takes in a signed 16-bit binary number
+//*Converts the binary number to decimal
+//*Displays the decimal result to the screen
 
 
 // coded by Luke Thayer November 2020 for CS 3A
